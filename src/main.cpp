@@ -17,7 +17,6 @@ unsigned long pressedEnterTime = 0;
 
 // Variáveis para controlar o menu
 int menuIndex = 0;
-int submenuIndex = 0;
 
 // Variável para armazenar o valor a ser aumentado ou diminuído
 bool value = false;
@@ -90,7 +89,7 @@ void loop() {
       if (value == false) {
         value = true;
         Serial.println("Submenu");
-        displaySubmenu(options[submenuIndex]);
+        displaySubmenu(options[menuIndex]);
       }
     }
     lastButtonEnterState = buttonEnterState;
@@ -113,10 +112,11 @@ void displaySubmenu(String menu) {
   lcd.print(menu);
   lcd.setCursor(0, 1);
   lcd.print("               "); // Limpa a área para exibir o valor
-  lcd.setCursor(0, 1);
   if(menuIndex == 0){
     int cursor = 0;
     for (int i = 0; i <= 3; i++) {
+      litros[i] = 0;
+      lcd.setCursor(i, 1);
       lcd.print(litros[i]);
     }
 
@@ -157,5 +157,20 @@ void displaySubmenu(String menu) {
     lcd.print(total);
     delay(10000);
 
+  } else {
+    while(true){
+      lcd.setCursor(0, 1);
+      lcd.print("Aguardando");
+      delay(100);
+      if (digitalRead(buttonEnterPin) == LOW) {
+        lcd.clear();
+        lcd.setCursor(0,0);
+        lcd.print("Saindo");
+        delay(2000);
+        break;
+      }
+    }
   }
+  value = false;
+  displayMenu();
 }
