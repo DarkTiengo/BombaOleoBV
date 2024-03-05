@@ -159,8 +159,6 @@ void displaySubmenu(String menu) {
 
   } else {
     while(true){
-      lcd.setCursor(0, 1);
-      lcd.print("Aguardando");
       delay(100);
       if (digitalRead(buttonEnterPin) == LOW) {
         lcd.clear();
@@ -169,6 +167,20 @@ void displaySubmenu(String menu) {
         delay(2000);
         break;
       }
+
+      while (digitalRead(buttonDownPin) == LOW) {
+        lcd.setCursor(0,1);
+        lcd.print("<-");
+        delay(100);
+      }
+
+      while (digitalRead(buttonUpPin) == LOW) {
+        lcd.setCursor(0,1);
+        lcd.print("->");
+        delay(100);
+      }
+      lcd.setCursor(0, 1);
+      lcd.print("                ");
     }
   }
   value = false;
