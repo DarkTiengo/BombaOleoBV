@@ -149,13 +149,48 @@ void displaySubmenu(String menu) {
       }
     } 
     
-    lcd.clear();
-    lcd.setCursor(0, 0);
-    lcd.print("Abastecendo");
-    lcd.setCursor(0, 1);
     int total = litros[0] * 1000 + litros[1] * 100 + litros[2] * 10 + litros[3];
-    lcd.print(total);
-    delay(10000);
+    lcd.clear();
+    delay(100);
+    if (total > 0) {
+      bool aux = true;
+      lcd.setCursor(0, 0);
+      lcd.print("Abastecer " + String(total) + "L?");
+      lcd.setCursor(0, 1);
+      lcd.print("              ");
+      delay(100);
+      while(!digitalRead(buttonEnterPin) == LOW) {
+        delay(100);
+        if (digitalRead(buttonDownPin) == LOW) {
+          aux = false;
+        }
+        if (digitalRead(buttonUpPin) == LOW) {
+          aux = true;
+        }
+
+        if (aux == true) {
+          lcd.setCursor(0, 1);
+          lcd.print(">Sim Nao");
+        } else {
+          lcd.setCursor(0, 1);
+          lcd.print("Sim >Nao");
+        }
+      }
+      if (aux == true)
+      {
+        lcd.clear();
+        lcd.setCursor(0, 0);
+        lcd.print("Abastecendo...");
+        delay(1000);
+        lcd.clear();
+        lcd.setCursor(0, 0);
+        lcd.print("Abastecido!");
+        delay(1000);
+        lcd.clear();
+        lcd.setCursor(0, 0);
+        lcd.print("Volte sempre!");
+      }
+    }
 
   } else {
     while(true){
