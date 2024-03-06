@@ -5,6 +5,8 @@ LiquidCrystal_I2C lcd(0x27, 16, 2);
 const byte buttonUpPin = 2;
 const byte buttonDownPin = 3;
 const byte buttonEnterPin = 4;
+const byte forwardMotorPin = 11;
+const byte backwardMotorPin = 10;
 
 // Variáveis para rastrear o estado dos botões
 int buttonUpState = HIGH;
@@ -46,6 +48,8 @@ void setup() {
   pinMode(buttonUpPin, INPUT_PULLUP);
   pinMode(buttonDownPin, INPUT_PULLUP);
   pinMode(buttonEnterPin, INPUT_PULLUP);
+  pinMode(forwardMotorPin, OUTPUT);
+  pinMode(backwardMotorPin, OUTPUT);
   delay(1000);
   displayMenu();
 }
@@ -206,12 +210,14 @@ void displaySubmenu(String menu) {
       while (digitalRead(buttonDownPin) == LOW) {
         lcd.setCursor(0,1);
         lcd.print("<-");
+        digitalWrite(backwardMotorPin, HIGH);
         delay(100);
       }
 
       while (digitalRead(buttonUpPin) == LOW) {
         lcd.setCursor(0,1);
         lcd.print("->");
+        digitalWrite(forwardMotorPin, HIGH);
         delay(100);
       }
       lcd.setCursor(0, 1);
