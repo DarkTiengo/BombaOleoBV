@@ -7,6 +7,7 @@ const byte buttonDownPin = 3;
 const byte buttonEnterPin = 4;
 const byte forwardMotorPin = 11;
 const byte backwardMotorPin = 10;
+const float litrosPorSegundo = 0.333;
 
 // Variáveis para rastrear o estado dos botões
 int buttonUpState = HIGH;
@@ -31,7 +32,7 @@ String menuOptions[NUM_OPTIONS] = {"Automatico", "Manual"};
 const int NUM_SUBOPTIONS = 2;
 String options[NUM_SUBOPTIONS] = {"Litros:", "Abastecer"};
 
-int litros[4] = {0, 0, 0, 0};
+int litros[3] = {0, 0, 0};
 
 void displayMenu();
 void displaySubmenu(String menu);
@@ -118,13 +119,13 @@ void displaySubmenu(String menu) {
   lcd.print("               "); // Limpa a área para exibir o valor
   if(menuIndex == 0){
     int cursor = 0;
-    for (int i = 0; i <= 3; i++) {
+    for (int i = 0; i <= 2; i++) {
       litros[i] = 0;
       lcd.setCursor(i, 1);
       lcd.print(litros[i]);
     }
 
-    while (cursor < 4){
+    while (cursor < 3){
       lcd.setCursor(cursor, 1);
       lcd.print(" ");
       delay(100);
@@ -133,6 +134,7 @@ void displaySubmenu(String menu) {
       delay(200);
 
       if (digitalRead(buttonUpPin) == LOW) {
+      if (cursor == 0 && litros[cursor] > 5) litros[cursor] = 0;
         litros[cursor]++;
         if (litros[cursor] > 9) {
           litros[cursor] = 0;
@@ -141,6 +143,7 @@ void displaySubmenu(String menu) {
 
       if (digitalRead(buttonDownPin) == LOW) {
         litros[cursor]--;
+        if (cursor == 0 && litros[cursor] < 0) litros[cursor] = 5;
         if (litros[cursor] < 0) {
           litros[cursor] = 9;
         }
@@ -153,7 +156,7 @@ void displaySubmenu(String menu) {
       }
     } 
     
-    int total = litros[0] * 1000 + litros[1] * 100 + litros[2] * 10 + litros[3];
+    int total = litros[0] * 100 + litros[1] * 10 + litros[2];
     lcd.clear();
     delay(100);
     if (total > 0) {
@@ -185,20 +188,34 @@ void displaySubmenu(String menu) {
         lcd.clear();
         lcd.setCursor(0, 0);
         lcd.print("Abastecendo...");
-        delay(1000);
+        float tempo = total / litrosPorSegundo;
+        for (int i = 0; i < tempo; i++) {
+          digitalWrite(forwardMotorPin, HIGH);
+          lcd.setCursor(0, 1);
+          lcd.print("              ");
+          lcd.setCursor(0, 1);
+          lcd.print(String(i*litrosPorSegundo) + "L");
+          delay(1000);
+          if(digitalRead(buttonEnterPin) == LOW){
+            break;
+          }
+        }
+        digitalWrite(forwardMotorPin, LOW);
         lcd.clear();
         lcd.setCursor(0, 0);
         lcd.print("Abastecido!");
-        delay(1000);
-        lcd.clear();
-        lcd.setCursor(0, 0);
-        lcd.print("Volte sempre!");
+        delay(2000);
+        digitalWrite(backwardMotorPin, HIGH);
+        delay(3000);
+        digitalWrite(backwardMotorPin, LOW);
       }
     }
 
   } else {
+    float litros = 0;
+    int tempo = 0;
     while(true){
-      delay(100);
+      delay(500);
       if (digitalRead(buttonEnterPin) == LOW) {
         lcd.clear();
         lcd.setCursor(0,0);
@@ -209,19 +226,32 @@ void displaySubmenu(String menu) {
 
       while (digitalRead(buttonDownPin) == LOW) {
         lcd.setCursor(0,1);
-        lcd.print("<-");
+        lcd.print("                ");
+        lcd.setCursor(0,1);
+        litros -= tempo*litrosPorSegundo; 
+        lcd.print(String(litros) + "L");
         digitalWrite(backwardMotorPin, HIGH);
-        delay(100);
+        delay(1000);
+        tempo++;
+        if(litros < -500) break;
       }
 
       while (digitalRead(buttonUpPin) == LOW) {
         lcd.setCursor(0,1);
-        lcd.print("->");
+        lcd.print("                ");
+        lcd.setCursor(0,1);
+        litros += tempo*litrosPorSegundo;
+        lcd.print(String(litros) + "L");
         digitalWrite(forwardMotorPin, HIGH);
-        delay(100);
+        delay(1000);
+        tempo++;
+        if(litros > 500) break;
       }
       lcd.setCursor(0, 1);
-      lcd.print("                ");
+
+      tempo = 0;
+      digitalWrite(backwardMotorPin, LOW);
+      digitalWrite(forwardMotorPin, LOW);
     }
   }
   value = false;
