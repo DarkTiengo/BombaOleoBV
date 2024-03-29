@@ -201,7 +201,8 @@ void displaySubmenu(String menu) {
           }
         }
         digitalWrite(forwardMotorPin, LOW);
-        lcd.clear();
+        lcd.setCursor(0, 0);
+        lcd.print("                ");
         lcd.setCursor(0, 0);
         lcd.print("Abastecido!");
         delay(2000);
